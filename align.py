@@ -42,7 +42,7 @@ def detect_image(image, output='output', shape_predictor="shape_predictor_68_fac
                      desiredFaceWidth=pixel_size)
 
     # load the input image, resize it, and convert it to grayscale
-    image = cv2.imread(image)
+    image = cv2.imdecode(image, cv2.IMREAD_UNCHANGED)
     image = imutils.resize(image, width=pixel_size)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -75,6 +75,8 @@ def detect_image(image, output='output', shape_predictor="shape_predictor_68_fac
                 faceAligned = faceAligned[:, diff:width + diff, :]
 
             # saves image as jpg file if image name has been entered
-            if output is not None:
-                cv2.imwrite(output + ".JPG", faceAligned)
+            # if output is not None:
+            cv2.imwrite(output + ".jpg", faceAligned)
+            retval, buffer = cv2.imencode('.jpg', faceAligned)
+            return buffer
 

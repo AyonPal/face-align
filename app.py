@@ -24,9 +24,10 @@
 # # cv2.imshow('img', img)
 # cv2.waitKey()
 
-from flask import Flask, render_template, request, send_file
-from werkzeug.utils import secure_filename
+from flask import Flask, request, make_response
+# from werkzeug.utils import secure_filename
 from align import detect_image
+import numpy
 app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = 'uploads/'
@@ -40,8 +41,8 @@ def hello():
 @app.route('/uploader', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        f = request.files['file']
-        f.save(secure_filename(f.filename))
+        # f = request.files['file']
+        # f.save(secure_filename(f.filename))
         # img = cv2.imread(secure_filename(f.filename))
         # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # faces = face_cascade.detectMultiScale(gray, 1.1, 4)
@@ -51,10 +52,15 @@ def upload_file():
         #     # cv2.imshow("face",faces)
         #     cv2.imwrite('face.jpg', faces)
         # cv2.imwrite('detcted.jpg', img)
-        detect_image(secure_filename(f.filename))
-        # cv2.imshow('img', img)
-        return send_file('output.JPG', mimetype='image/jpeg')
-        # return 'file uploaded successfully'
+        if request.files['file']:
+            buffer = detect_image(numpy.frombuffer(request.files['file'].read(), numpy.uint8))
+            # cv2.imshow('img', img)
+            # return send_file('output.JPG', mimetype='image/jpeg')
+            if buffer:
+                response = make_response(buffer.tobytes())
+                response.headers['Content-Type'] = 'image/jpeg'
+            
+        return 'Failed to get image'
 
 
 if __name__ == '__main__':
